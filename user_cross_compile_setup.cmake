@@ -5,7 +5,7 @@
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 
-set(tools /home/ubuntu/Your_SDK/prebuilt/rootfsbuilt/arm/toolchain-glibc-gcc/toolchain)
+set(tools /usr/local/toolchain/linux64)
 set(CMAKE_C_COMPILER ${tools}/bin/arm-openwrt-linux-gnueabi-gcc)
 set(CMAKE_CXX_COMPILER ${tools}/bin/arm-openwrt-linux-gnueabi-g++)
 
