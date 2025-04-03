@@ -127,8 +127,7 @@ set(LV_LINUX_INC src/lib)
 
 include_directories(
     include
-    ${PROJECT_SOURCE_DIR}/../../future_gui/include/
-    ${PROJECT_SOURCE_DIR}/../../future_devices/include/
+    ${PROJECT_SOURCE_DIR}/future_lib/include/
     )
 
 add_subdirectory(lvgl)
@@ -138,8 +137,8 @@ target_include_directories(lvgl_linux PRIVATE ${LV_LINUX_INC} ${PROJECT_SOURCE_D
 
 add_executable(lvglsim src/main.cpp ${LV_LINUX_SRC} ${LV_LINUX_BACKEND_SRC})
 target_link_libraries(lvglsim lvgl_linux lvgl lvgl::examples lvgl::demos lvgl::thorvg m pthread ${PKG_CONFIG_LIB}
-    ${PROJECT_SOURCE_DIR}/../../future_gui/build/lib/libfuture_gui.so
-    ${PROJECT_SOURCE_DIR}/../../future_devices/build/lib/libfuture_devices.so)
+    ${PROJECT_SOURCE_DIR}/future_lib/lib/libfuture_gui.so
+    ${PROJECT_SOURCE_DIR}/future_lib/lib/libfuture_devices.so)
 
 # Install the lvgl_linux library and its headers
 install(DIRECTORY src/lib/
