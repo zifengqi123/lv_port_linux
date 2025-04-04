@@ -37,7 +37,7 @@
 #include "notice_ui.h"
 #include "input_ui.h"
 
-#include "future_devices.h"
+#include "smartwin_devices.h"
 
 /* Internal functions */
 static void configure_simulator(int argc, char **argv);
@@ -131,7 +131,7 @@ static void configure_simulator(int argc, char **argv)
     }
 }
 
-future::future_devices* _devices = future::future_devices::getInstance();
+smartwin::smartwin_devices* _devices = smartwin::smartwin_devices::getInstance();
 
 void test_communication_mode(int i)
 {
@@ -262,9 +262,9 @@ void factory_main_menu()
                 break;
             }
 
-            if(key == KEY_CONFIRM) {
-                break;
-            }
+            // if(key == KEY_CONFIRM) {
+            //     break;
+            // }
 
         }
 
@@ -304,7 +304,7 @@ int main(int argc, char **argv)
     // lv_demo_widgets_start_slideshow();
 
 
-    future_gui::status_ui *ui = new future_gui::status_ui(lv_screen_active());
+    smartwin_gui::status_ui *ui = new smartwin_gui::status_ui(lv_screen_active());
 
     factory_main_menu();
 
@@ -345,9 +345,9 @@ int main(int argc, char **argv)
                 menu_ui_set_select(key - 0x30);
             }
 
-            if(key == KEY_CONFIRM) {
-                break;
-            }
+            // if(key == KEY_CONFIRM) {
+            //     break;
+            // }
         }
         lv_timer_handler();
         usleep(5 * 1000);
@@ -377,8 +377,6 @@ int main(int argc, char **argv)
     notice_ui_show("notice something");
 #endif
 
-    // future_gui::notice_ui *notice = new future_gui::notice_ui(lv_screen_active());
-    // notice->notice_show("Title", "Text");
 
     /* Enter the run loop of the selected backend */
     driver_backends_run_loop();
