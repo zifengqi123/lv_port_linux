@@ -26,11 +26,6 @@
 #include <ctype.h>
 
 #include "lvgl/lvgl.h"
-#include "lvgl/demos/lv_demos.h"
-
-#include "driver_backends.h"
-#include "simulator_util.h"
-#include "simulator_settings.h"
 
 #include "status_ui.h"
 #include "menu_ui.h"
@@ -38,19 +33,13 @@
 #include "input_ui.h"
 
 #include "smartwin_devices.h"
+#include "lv_port_indev.h"
+
+#include "lvgl/demos/lv_demos.h"
 
 /* Internal functions */
-static void configure_simulator(int argc, char **argv);
 static void print_lvgl_version(void);
-static void print_usage(void);
-
-/* contains the name of the selected backend if user
- * has specified one on the command line */
-static char *selected_backend;
-
-/* Global simulator settings, defined in lv_linux_backend.c */
-extern simulator_settings_t settings;
-
+static smartwin::smartwin_devices* _devices;
 
 /**
  * @brief Print LVGL version
@@ -64,74 +53,6 @@ static void print_lvgl_version(void)
             LVGL_VERSION_INFO);
 }
 
-/**
- * @brief Print usage information
- */
-static void print_usage(void)
-{
-    fprintf(stdout, "\nlvglsim [-V] [-B] [-b backend_name] [-W window_width] [-H window_height]\n\n");
-    fprintf(stdout, "-V print LVGL version\n");
-    fprintf(stdout, "-B list supported backends\n");
-}
-
-/**
- * @brief Configure simulator
- * @description process arguments recieved by the program to select
- * appropriate options
- * @param argc the count of arguments in argv
- * @param argv The arguments
- */
-static void configure_simulator(int argc, char **argv)
-{
-    int opt = 0;
-    char *backend_name;
-
-    selected_backend = NULL;
-    driver_backends_register();
-
-    /* Default values */
-    settings.window_width = atoi(getenv("LV_SIM_WINDOW_WIDTH") ? : "800");
-    settings.window_height = atoi(getenv("LV_SIM_WINDOW_HEIGHT") ? : "480");
-
-    /* Parse the command-line options. */
-    while ((opt = getopt (argc, argv, "b:fmW:H:BVh")) != -1) {
-        switch (opt) {
-        case 'h':
-            print_usage();
-            exit(EXIT_SUCCESS);
-            break;
-        case 'V':
-            print_lvgl_version();
-            exit(EXIT_SUCCESS);
-            break;
-        case 'B':
-            driver_backends_print_supported();
-            exit(EXIT_SUCCESS);
-            break;
-        case 'b':
-            if (driver_backends_is_supported(optarg) == 0) {
-                die("error no such backend: %s\n", optarg);
-            }
-            selected_backend = strdup(optarg);
-            break;
-        case 'W':
-            settings.window_width = atoi(optarg);
-            break;
-        case 'H':
-            settings.window_height = atoi(optarg);
-            break;
-        case ':':
-            print_usage();
-            die("Option -%c requires an argument.\n", optopt);
-            break;
-        case '?':
-            print_usage();
-            die("Unknown option -%c.\n", optopt);
-        }
-    }
-}
-
-smartwin::smartwin_devices* _devices = smartwin::smartwin_devices::getInstance();
 
 void test_communication_mode(int i)
 {
@@ -273,6 +194,93 @@ void factory_main_menu()
     }
 }
 
+static void event_cb(lv_event_t * e)
+{
+    uint32_t key = lv_indev_get_key(lv_indev_active());
+    LV_LOG_USER("key input: %x", key);
+    
+    lv_obj_t * obj = lv_event_get_target_obj(e);
+    if(key == LV_KEY_ESC) {
+        lv_obj_send_event(lv_menu_get_main_header_back_button(obj), LV_EVENT_CLICKED, NULL);
+    }
+}
+
+void lv_example_menu_1(void)
+{
+    /*Create a menu object*/
+    lv_group_t * g = lv_group_create();
+
+    lv_obj_t * menu = lv_menu_create(lv_screen_active());
+    lv_obj_set_size(menu, 320, 240-24);
+    lv_obj_set_pos(menu, 0, 24);
+    // lv_obj_center(menu);
+
+    lv_group_add_obj(g, menu);
+    lv_indev_set_group(lv_port_getkeypad_indev(), g);
+
+    lv_obj_t * cont;
+    lv_obj_t * label;
+
+    /*Create a sub page*/
+    lv_obj_t * sub_page = lv_menu_page_create(menu, NULL);
+
+    cont = lv_menu_cont_create(sub_page);
+    label = lv_label_create(cont);
+    lv_label_set_text(label, "Hello, I am hiding here");
+
+    /*Create a main page*/
+    lv_obj_t * main_page = lv_menu_page_create(menu, NULL);
+
+    cont = lv_menu_cont_create(main_page);
+    label = lv_label_create(cont);
+    lv_label_set_text(label, "Item 1");
+
+    cont = lv_menu_cont_create(main_page);
+    label = lv_label_create(cont);
+    lv_label_set_text(label, "Item 2");
+
+    cont = lv_menu_cont_create(main_page);
+    label = lv_label_create(cont);
+    lv_label_set_text(label, "Item 3 (Click me!)");
+    lv_menu_set_load_page_event(menu, cont, sub_page);
+
+    lv_obj_add_event_cb(menu, event_cb, LV_EVENT_KEY, NULL);
+
+    lv_menu_set_page(menu, main_page);
+
+    smartwin_gui::status_ui *ui = new smartwin_gui::status_ui(lv_screen_active());
+
+}
+
+
+void load_ttf_test()
+{
+
+    lv_font_t * font = lv_freetype_font_create("/root/arial.ttf",
+        LV_FREETYPE_FONT_RENDER_MODE_BITMAP,
+        24,
+        LV_FREETYPE_FONT_STYLE_NORMAL);
+
+    if(!font) {
+        LV_LOG_ERROR("freetype font create failed.");
+    }
+
+    /*Create style with the new font*/
+    static lv_style_t style;
+    lv_style_init(&style);
+    lv_style_set_text_font(&style, font);
+    lv_style_set_text_align(&style, LV_TEXT_ALIGN_CENTER);
+
+    /*Create a label with the new style*/
+    lv_obj_t * label = lv_label_create(lv_screen_active());
+    lv_obj_add_style(label, &style, 0);
+    lv_label_set_text(label, "عنوان\nإدخال المعلومات");
+    lv_obj_center(label);
+
+    smartwin_gui::status_ui *ui = new smartwin_gui::status_ui(lv_screen_active());
+}
+
+
 /**
  * @brief entry point
  * @description start a demo
@@ -281,31 +289,31 @@ void factory_main_menu()
  */
 int main(int argc, char **argv)
 {
-
-    configure_simulator(argc, argv);
+    print_lvgl_version();
+    _devices = smartwin::smartwin_devices::getInstance();
 
     /* Initialize LVGL. */
     lv_init();
 
-    /* Initialize the configured backend */
-    if (driver_backends_init_backend(selected_backend) == -1) {
-        die("Failed to initialize display backend");
-    }
+    /* Initialize display*/
+    lv_display_t * dsp = lv_linux_fbdev_create();
+    lv_linux_fbdev_set_file(dsp, "/dev/fb0");
 
-    /* Enable for EVDEV support */
-#if LV_USE_EVDEV
-    if (driver_backends_init_backend("EVDEV") == -1) {
-        die("Failed to initialize evdev");
-    }
-#endif
+    /* Initialize input*/
+    lv_port_indev_init();
 
+    
     /*Create a Demo*/
     // lv_demo_widgets();
     // lv_demo_widgets_start_slideshow();
 
 
-    smartwin_gui::status_ui *ui = new smartwin_gui::status_ui(lv_screen_active());
+    // load_ttf_test();
 
+    lv_example_menu_1();
+
+
+#if 0
     factory_main_menu();
 
 #if LANGUAGE_AL
@@ -377,9 +385,14 @@ int main(int argc, char **argv)
     notice_ui_show("notice something");
 #endif
 
+#endif
 
-    /* Enter the run loop of the selected backend */
-    driver_backends_run_loop();
+    while (true)
+    {
+        lv_timer_handler();
+        usleep(5 * 1000);
+
+    }
 
     return 0;
 }
