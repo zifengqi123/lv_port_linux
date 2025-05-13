@@ -36,7 +36,11 @@ extern "C" {
  **********************/
 void lv_port_indev_init(void);
 
-lv_indev_t* lv_port_getkeypad_indev();
+lv_indev_t* lv_port_get_keypad_indev();
+lv_indev_t* lv_port_get_touchpad_indev();
+
+void lv_port_display_init(void);
+lv_display_t * lv_port_get_display();
 
 /**********************
  *      MACROS

@@ -60,19 +60,41 @@ lv_indev_t * indev_keypad;
 static int32_t encoder_diff;
 static lv_indev_state_t encoder_state;
 
-lv_indev_t* lv_port_getkeypad_indev()
+lv_indev_t* lv_port_get_keypad_indev()
 {
     return indev_keypad;
+}
+
+lv_indev_t* lv_port_get_touchpad_indev()
+{
+    return indev_touchpad;
 }
 
 /**********************
  *      MACROS
  **********************/
 
+static lv_display_t * dsp = NULL;
+
+lv_display_t * lv_port_get_display()
+{
+    if(dsp == NULL)
+    {
+        lv_port_display_init();
+    }
+    return dsp;
+}
+
+void lv_port_display_init(void)
+{
+    dsp = lv_linux_fbdev_create();
+    lv_linux_fbdev_set_file(dsp, "/dev/fb0");
+}
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-static smartwin::smartwin_devices* sw_devices = smartwin::smartwin_devices::getInstance();
+static smartwin::smartwin_devices* sw_devices = smartwin::smartwin_devices::getInstance("/dev/ttyS1", 460800);
 
 void lv_port_indev_init(void)
 {
@@ -184,6 +206,7 @@ static void touchpad_init(void)
 {
     /*Your code comes here*/
     sw_devices->tp_open();
+    sw_devices->tp_set_parameter(0, 0, 319, 239, 20);
 }
 
 static uint32_t last_x = 0;
@@ -193,9 +216,9 @@ static int tp_ret = 0;
 /*Will be called by the library to read the touchpad*/
 static void touchpad_read(lv_indev_t * indev_drv, lv_indev_data_t * data)
 {
-
     /*Save the pressed coordinates and the state*/
     tp_ret = sw_devices->tp_get_touch_coordinate(last_x, last_y);
+
     if(tp_ret == 0) {
         // printf("tp_ret = %d, x = %d, y = %d\n", tp_ret, last_x, last_y);
         data->state = LV_INDEV_STATE_PRESSED;

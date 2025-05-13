@@ -18,21 +18,31 @@ foreach(arg ${PKG_CONFIG_LIB})
     string(APPEND LVGL_PKG_CONFIG_EXT_LIB " -l${arg}")
 endforeach()
 
-file(GLOB LV_LINUX_SRC src/lib/*.c)
-set(LV_LINUX_INC src/lib)
+file(GLOB LV_LINUX_SRC 
+    src/input_dev/lv_port_indev.cpp
+    src/sw_status_bar/sw_status_ui.cpp
+    src/factory_test/language/language_def.cpp
+    src/factory_test/sw_ui/sw_menu.cpp
+    src/factory_test/sw_ui/sw_notice.cpp
+    src/factory_test/test_main.cpp
+    )
 
 include_directories(
     include
-    ${PROJECT_SOURCE_DIR}/../../smartwin_devices/include
-    ${PROJECT_SOURCE_DIR}/../../smartwin_gui/include
+    ${PROJECT_SOURCE_DIR}/src/input_dev/
+    ${PROJECT_SOURCE_DIR}/../../smartwin_devices/include/
+    ${PROJECT_SOURCE_DIR}/src/sw_status_bar/
+    ${PROJECT_SOURCE_DIR}/src/factory_test/
+    ${PROJECT_SOURCE_DIR}/src/factory_test/language/
+    ${PROJECT_SOURCE_DIR}/src/factory_test/sw_ui/
+    
     )
 
 add_subdirectory(lvgl)
-target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src/input_dev ${PKG_CONFIG_INC})
+target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR} ${PKG_CONFIG_INC})
 
-add_executable(sw_demo src/main.cpp ${LV_LINUX_SRC} src/input_dev/lv_port_indev.cpp)
+add_executable(sw_demo src/main.cpp ${LV_LINUX_SRC})
 target_link_libraries(sw_demo lvgl lvgl::examples lvgl::demos lvgl::thorvg m pthread ${PKG_CONFIG_LIB}
     ${PROJECT_SOURCE_DIR}/../../smartwin_devices/build/lib/libsmartwin_devices.so
-    ${PROJECT_SOURCE_DIR}/../../smartwin_gui/build/lib/libsmartwin_gui.so
     )
 
