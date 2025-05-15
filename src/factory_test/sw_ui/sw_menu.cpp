@@ -37,13 +37,10 @@ static void event_cb_key(lv_event_t * e)
         if(selcet + ITEMS_PAGE_CNT * _menu_ui.cur_page < _menu_ui.item_cnt) {
             sw_menu_ui_set_select(selcet);
 
-            if(_menu_ui.items[_menu_ui.select_item].str_def != STR_test_tp) {
-                sw_notice_ui_init(_menu_ui.parent);
-            }
-            
+            sw_menu_ui_hide();            
+            LV_LOG_USER("_menu_ui.items call func..");
             pthread_create(&fun_thread_, NULL, &func_callback, NULL);
             
-            LV_LOG_USER("_menu_ui.items call func..");
         }
     }
     else if(key == LV_KEY_UP) {
@@ -58,13 +55,6 @@ static void event_cb_key(lv_event_t * e)
             sw_menu_ui_show();
         }
     }
-    else if(key == LV_KEY_ESC) {
-        LV_LOG_USER("key LV_KEY_ESC. to del.");
-        if(_menu_ui.items[_menu_ui.select_item].str_def != STR_test_tp) {
-            sw_notice_ui_del();
-            sw_menu_ui_show();
-        }
-    }
     
 }
 
@@ -75,7 +65,6 @@ void sw_menu_ui_init(lv_obj_t *parent, menu_item_t * items, int cnt)
     }
 
     pthread_mutex_init(&_menu_mutex, NULL);
-    pthread_mutex_lock(&_menu_mutex);
 
     _menu_ui.parent = parent;
     _menu_ui.item_cnt = cnt;
@@ -135,34 +124,21 @@ void sw_menu_ui_init(lv_obj_t *parent, menu_item_t * items, int cnt)
     lv_obj_set_size(_menu_ui.label_down, MENU_ITEM_TEXT_SIZE, MENU_ITEM_TEXT_SIZE);
     lv_label_set_text(_menu_ui.label_down, LV_SYMBOL_DOWN);
 
-    if(get_curr_language() == LANG_AR) {
-        lv_obj_align(_menu_ui.label_up, LV_ALIGN_TOP_LEFT, 10, 0);
-        lv_obj_align(_menu_ui.label_down, LV_ALIGN_BOTTOM_LEFT, 10, 0);
-    }
-    else {
-        lv_obj_align(_menu_ui.label_up, LV_ALIGN_TOP_RIGHT, -10, 0);
-        lv_obj_align(_menu_ui.label_down, LV_ALIGN_BOTTOM_RIGHT, -10, 0);
-    }
 
-    _menu_ui.main_g = lv_group_create();
-    lv_group_add_obj(_menu_ui.main_g, _menu_ui.obj);
-    lv_indev_set_group(lv_port_get_keypad_indev(), _menu_ui.main_g);
+    lv_group_add_obj(lv_group_get_default(), _menu_ui.obj);
     lv_obj_add_event_cb(_menu_ui.obj, event_cb_key, LV_EVENT_KEY, NULL);
 
     _menu_ui.loop = true;
-    pthread_mutex_unlock(&_menu_mutex);
 
     sw_menu_ui_show();
 
-    // while (_menu_ui.loop)
-    // {
-    //     lv_timer_handler();
-    //     usleep(5 * 1000);
-    // }
+
 }
 
 void sw_menu_ui_del()
 {
+    lv_obj_remove_event(_menu_ui.obj, LV_EVENT_KEY);
+
     _menu_ui.loop = false;
     sw_menu_ui_hide();
 
@@ -201,10 +177,21 @@ void sw_menu_ui_show_pageflag(bool has_up, bool has_down)
     else {
         lv_obj_add_flag(_menu_ui.label_down, LV_OBJ_FLAG_HIDDEN);
     }
+
+    if(get_curr_language() == LANG_AR) {
+        lv_obj_align(_menu_ui.label_up, LV_ALIGN_TOP_LEFT, 10, 0);
+        lv_obj_align(_menu_ui.label_down, LV_ALIGN_BOTTOM_LEFT, 10, 0);
+    }
+    else {
+        lv_obj_align(_menu_ui.label_up, LV_ALIGN_TOP_RIGHT, -10, 0);
+        lv_obj_align(_menu_ui.label_down, LV_ALIGN_BOTTOM_RIGHT, -10, 0);
+    }
 }
 
 void sw_menu_ui_show()
 {
+    lv_group_add_obj(lv_group_get_default(), _menu_ui.obj);
+
     char tmp[64] = {0};
     for (size_t i = 0; i < ITEMS_PAGE_CNT; i++)
     {
@@ -251,6 +238,8 @@ void sw_menu_ui_show()
 
 void sw_menu_ui_hide()
 {
+    lv_group_remove_obj(_menu_ui.obj);
+
     for (int i = 0; i < ITEMS_PAGE_CNT; i++)
     {
         lv_obj_add_flag(_menu_ui.item_lines[i], LV_OBJ_FLAG_HIDDEN);

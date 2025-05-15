@@ -46,7 +46,7 @@ std::vector<uint8_t> str2vect(std::string str) {
 
 void test_version()
 {
-    //sw_notice_ui_init(lv_screen_active());
+    sw_notice_ui_init(lv_screen_active());
     
 
     std::vector<uint8_t> version;
@@ -134,13 +134,14 @@ void test_version()
     }
     safe_sprintf("get_chip_serial_number ret: %d, chip_serial_number: %s\n", ret, std::string(version.begin(), version.end()).c_str());
 
+    sw_notice_ui_end();
 }
 
 
 
 void test_beep()
 {
-    //sw_notice_ui_init(lv_screen_active());
+    sw_notice_ui_init(lv_screen_active());
     
     int ret = _devices->beep(SDK_BEEP_ABNORMAL);
     if (ret != 0) {
@@ -163,11 +164,12 @@ void test_beep()
     }
     safe_sprintf("beep ret: %d\n", ret);
 
+    sw_notice_ui_end();
 }
 
 void test_led()
 {
-    //sw_notice_ui_init(lv_screen_active());
+    sw_notice_ui_init(lv_screen_active());
     
 
     int ret = _devices->led_on(0x0F);
@@ -197,12 +199,14 @@ void test_led()
         return;
     }
     safe_sprintf("led_off ret: %d\n", ret);
+
+    sw_notice_ui_end();
 }
 
 
 void test_keyboard()
 {
-    //sw_notice_ui_init(lv_screen_active());
+    sw_notice_ui_init(lv_screen_active());
     
 
     int ret = _devices->keyboard_open();
@@ -240,8 +244,11 @@ void test_keyboard()
         ret = _devices->keyboard_get_input(key);
         if (ret == 0) {
             safe_sprintf("keyboard_get_input ret: %d, key: %d\n", ret, key);
+            cnt--;
             break;
         }
+        lv_timer_handler();
+        usleep(10 * 1000);
     }
 
     // ret = _devices->keyboard_set_sound(0);
@@ -263,12 +270,14 @@ void test_keyboard()
     //     return;
     // }
     // safe_sprintf("keyboard_close ret: %d\n", ret);
+
+    sw_notice_ui_end();
 }
 
 
 void test_tp()
 {
-    //sw_notice_ui_init(lv_screen_active());
+    sw_notice_ui_init(lv_screen_active());
     
 
     int ret = _devices->tp_check_support();
@@ -302,6 +311,8 @@ void test_tp()
             safe_sprintf("tp_get_touch_coordinate ret: %d, x: %d, y: %d\n", ret, x, y);
             cnt--;
         }
+        lv_timer_handler();
+        usleep(10 * 1000);
     }
     safe_sprintf("tp_get_touch_coordinate end\n");
 
@@ -312,12 +323,13 @@ void test_tp()
     }
     safe_sprintf("tp_close ret: %d\n", ret);
 
+    sw_notice_ui_end();
 }
 
 
 void test_magnetic_stripe_card()
 {
-    //sw_notice_ui_init(lv_screen_active());
+    sw_notice_ui_init(lv_screen_active());
     
 
     int ret = _devices->magnetic_stripe_card_open();
@@ -334,7 +346,7 @@ void test_magnetic_stripe_card()
     }
     // safe_sprintf("magnetic_stripe_card_clear_data ret: %d\n", ret);
 
-    int cnt = 1000;
+    int cnt = 3000;
     while (cnt > 0)
     {
         ret = _devices->magnetic_stripe_card_check();
@@ -342,7 +354,8 @@ void test_magnetic_stripe_card()
             safe_sprintf("magnetic_stripe_card_check ret: %d\n", ret);
             break;
         }
-        usleep(1000);
+        lv_timer_handler();
+        usleep(10 * 1000);
         cnt--;
     }
     if (cnt <= 0) {
@@ -386,12 +399,12 @@ void test_magnetic_stripe_card()
     }
     // safe_sprintf("magnetic_stripe_card_close ret: %d\n", ret);
 
-
+    sw_notice_ui_end();
 }
 
 void test_ic()
 {
-    //sw_notice_ui_init(lv_screen_active());
+    sw_notice_ui_init(lv_screen_active());
     
 
     int ret = _devices->ic_card_open(0, 0);
@@ -407,7 +420,8 @@ void test_ic()
             safe_sprintf("ic_card_check_status ret: %d\n", ret);
             break;
         } 
-        sleep(1);
+        lv_timer_handler();
+        usleep(10 * 1000);
     }
 
     std::vector<uint8_t> data;
@@ -444,12 +458,12 @@ void test_ic()
     }
     safe_sprintf("ic_card_power_off ret: %d\n", ret);
 
-    
+    sw_notice_ui_end();
 }
 
 void test_icc()
 {
-    //sw_notice_ui_init(lv_screen_active());
+    sw_notice_ui_init(lv_screen_active());
     
 
     int ret = _devices->icc_open_module();
@@ -471,7 +485,8 @@ void test_icc()
             safe_sprintf("icc_search_card_activation ret: %d\n", ret);
             break;
         }
-        usleep(1000);
+        lv_timer_handler();
+        usleep(10 * 1000);
         cnt--;
     }
     
@@ -497,12 +512,14 @@ void test_icc()
         safe_sprintf("ERROR: icc_close_module ret: %d\n", ret);
         return;
     }
+
+    sw_notice_ui_end();
 }
 
 
 void test_mifare_card()
 {
-    //sw_notice_ui_init(lv_screen_active());
+    sw_notice_ui_init(lv_screen_active());
     
 
     std::vector<uint8_t> uid;
@@ -544,11 +561,13 @@ void test_mifare_card()
         return;
     }
     safe_sprintf("ic_card_close ret: %d\n", ret);
+
+    sw_notice_ui_end();
 }
 
 void test_search_card()
 {
-    //sw_notice_ui_init(lv_screen_active());
+    sw_notice_ui_init(lv_screen_active());
     
 
     int ret = _devices->ic_card_open(SDK_CARD_TYPE_CPU, SDK_CARD_SEAT_STANDARD);
@@ -574,7 +593,7 @@ void test_search_card()
         return;
     }
     safe_sprintf("search_card_start ret: %d\n", ret);
-    int cnt = 10;
+    int cnt = 6000;
     while (cnt > 0) {
         uint8_t type = 0;
         uint8_t key = 0;
@@ -583,7 +602,8 @@ void test_search_card()
             safe_sprintf("search_card_get_status ret: %d, type: %d, key: %d\n", ret, type, key);
             break;
         }
-        sleep(1);
+        lv_timer_handler();
+        usleep(10 * 1000);
         cnt--;
     }
     
@@ -593,11 +613,13 @@ void test_search_card()
         return;
     }
     safe_sprintf("search_card_stop ret: %d\n", ret);
+
+    sw_notice_ui_end();
 }
 
 void test_scan()
 {
-    //sw_notice_ui_init(lv_screen_active());
+    sw_notice_ui_init(lv_screen_active());
     
 
     int ret = _devices->scan_open();
@@ -624,6 +646,8 @@ void test_scan()
         return;
     }
     safe_sprintf("scan_close ret: %d\n", ret);
+
+    sw_notice_ui_end();
 }
 
 void test_printer()
@@ -683,12 +707,14 @@ void test_printer()
         return;
     }
     safe_sprintf("printer_close ret: %d\n", ret);
+
+    sw_notice_ui_end();
 }
 
 
 void test_keypad()
 {
-    //sw_notice_ui_init(lv_screen_active());
+    sw_notice_ui_init(lv_screen_active());
     
 
     int ret = _devices->keypad_open();
@@ -715,17 +741,29 @@ void test_keypad()
     safe_sprintf("keypad_close ret: %d\n", ret);
 
 
-    
+    sw_notice_ui_end();
 }
 
 
 static lv_point_t  last_pt;
 static lv_layer_t  layer;
 
-static lv_draw_buf_t draw_buf;
 static lv_obj_t * canvas = NULL;
 static bool is_draw = false;
 static lv_obj_t * tp_obj;
+static pthread_mutex_t tp_show_mutex;
+static bool tp_flag = false;
+
+void* draw_thread(void* arg) {
+    while (tp_flag) {
+        pthread_mutex_lock(&tp_show_mutex);
+        // 执行绘制逻辑
+        lv_canvas_finish_layer(canvas, &layer);
+        pthread_mutex_unlock(&tp_show_mutex);
+        usleep(10*1000);  // 控制绘制频率
+    }
+    return NULL;
+}
 
 static void event_cb_ck(lv_event_t * e)
 {
@@ -745,18 +783,25 @@ static void event_cb_ck(lv_event_t * e)
         last_pt.y = point.y;
 
         if(!canvas) {
-            LV_DRAW_BUF_DEFINE_STATIC(draw_buf, 320, 240, LV_COLOR_FORMAT_RGB565);
-            LV_DRAW_BUF_INIT_STATIC(draw_buf);
+            LV_DRAW_BUF_DEFINE_STATIC(buf_draw_buf_1, 320, 240, LV_COLOR_FORMAT_RGB565);
+            LV_DRAW_BUF_INIT_STATIC(buf_draw_buf_1);
+        
+        
             /*Create a canvas and initialize its palette*/
             
             canvas = lv_canvas_create(lv_screen_active());
-            lv_canvas_set_draw_buf(canvas, &draw_buf);
+            lv_canvas_set_draw_buf(canvas, &buf_draw_buf_1);
             lv_canvas_fill_bg(canvas, lv_color_hex3(0xccc), LV_OPA_COVER);
             lv_obj_center(canvas);
-
+    
             lv_canvas_init_layer(canvas, &layer);
 
+            pthread_t draw_thread_id;
+            tp_flag = true;
+            pthread_create(&draw_thread_id, NULL, draw_thread, NULL);
+
         }
+
         break;
     case LV_EVENT_RELEASED:
         LV_LOG_USER("LV_EVENT_RELEASED");
@@ -764,6 +809,7 @@ static void event_cb_ck(lv_event_t * e)
         break;
     case LV_EVENT_PRESSING:
         if(is_draw) {
+
             lv_indev_get_point(lv_indev_active(), &point);
             LV_LOG_USER("LV_EVENT_PRESSING: %d, %d", point.x, point.y);
 
@@ -777,7 +823,10 @@ static void event_cb_ck(lv_event_t * e)
                 t.p2.x = point.x;
                 t.p2.y = point.y;
                 lv_draw_line(&layer, &t);
-                lv_canvas_finish_layer(canvas, &layer);
+                // lv_canvas_finish_layer(canvas, &layer);
+
+                // lv_canvas_draw_line(canvas, last_pt.x, last_pt.y, point.x, point.y, &t);
+
 
                 last_pt.x = point.x;
                 last_pt.y = point.y;
@@ -787,10 +836,6 @@ static void event_cb_ck(lv_event_t * e)
     default:
         break;
     }
-
-    // lv_linux_fbdev_set_force_refresh(lv_port_get_display(), true);
-    // lv_timer_handler();
-    // usleep(5*1000);
 
 }
 
@@ -804,7 +849,8 @@ void test_tp_del()
         lv_obj_del(canvas);
         canvas = NULL;
 
-        test_menu_ft();
+        status_ui_show();
+        sw_menu_ui_show();
     }
 }
 
@@ -817,6 +863,8 @@ static void event_cb1_key(lv_event_t * e)
 
     if(key == LV_KEY_ESC) {
         LV_LOG_USER("key LV_KEY_ESC. to del.");
+        tp_flag = false;
+
         lv_obj_remove_event(tp_obj, LV_EVENT_ALL);
         lv_obj_remove_event(tp_obj, LV_EVENT_KEY);
         test_tp_del();
@@ -825,8 +873,10 @@ static void event_cb1_key(lv_event_t * e)
 }
 void sw_test_tp()
 {
-    status_ui_del();
-    sw_menu_ui_del();
+    status_ui_hide();
+    sw_menu_ui_hide();
+
+    pthread_mutex_init(&tp_show_mutex, NULL);
 
     LV_LOG_USER("sw_test_tp. s..");
     tp_obj =  lv_obj_create(lv_screen_active());
@@ -842,15 +892,14 @@ void sw_test_tp()
 	lv_obj_set_style_pad_right(tp_obj, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(tp_obj, lv_color_hex(MENU_ITEM_UNSELECT_BG_COLOR), LV_PART_MAIN|LV_STATE_DEFAULT);
 
-    lv_group_t * g = lv_group_create();
-    lv_group_add_obj(g, tp_obj);
-    lv_indev_set_group(lv_port_get_touchpad_indev(), g);
-
+    LV_LOG_USER("sw_test_tp. 1..");
+    lv_group_add_obj(lv_group_get_default(), tp_obj);
+    LV_LOG_USER("sw_test_tp. 2..");
     lv_obj_add_event_cb(tp_obj, event_cb_ck, LV_EVENT_ALL, NULL);
-
-    lv_indev_set_group(lv_port_get_keypad_indev(), g);
     lv_obj_add_event_cb(tp_obj, event_cb1_key, LV_EVENT_KEY, NULL);
+    LV_LOG_USER("sw_test_tp. 3..");
 
+    tp_flag = true;
     LV_LOG_USER("sw_test_tp. e..");
 }
 
@@ -892,7 +941,6 @@ static void get_statusinfo(status_info_t * info)
 void test_status_bar()
 {
     status_ui_init(lv_screen_active(), get_statusinfo);
-
     status_ui_show();
 }
 

@@ -46,4 +46,9 @@
 #define NOTICE_VIEW_HIGHT       (240 - STATUS_VIEW_HIGHT)
 #endif
 
+#include "sw_menu.h"
+#include "sw_notice.h"
+#include "sw_status_ui.h"
+
+
 #endif

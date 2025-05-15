@@ -177,7 +177,27 @@ void load_ttf_test()
 
 }
 
+static void sw_hal_init()
+{
+    smartwin::smartwin_devices::getInstance("/dev/ttyS1", 460800);
 
+    lv_group_set_default(lv_group_create());
+
+    /* Initialize display*/
+    lv_port_display_init();
+
+    /* Initialize input*/
+    lv_port_indev_init();
+
+    lv_indev_t *keypad = lv_port_get_keypad_indev();
+    lv_indev_set_display(keypad, lv_port_get_display());
+    lv_indev_set_group(keypad, lv_group_get_default());
+
+    lv_indev_t *touchpad = lv_port_get_touchpad_indev();
+    lv_indev_set_display(touchpad, lv_port_get_display());
+    lv_indev_set_group(touchpad, lv_group_get_default());
+
+}
 
 /**
  * @brief entry point
@@ -188,21 +208,12 @@ void load_ttf_test()
 int main(int argc, char **argv)
 {
     print_lvgl_version();
-    _devices = smartwin::smartwin_devices::getInstance("/dev/ttyS1", 460800);
-
+    
     /* Initialize LVGL. */
     lv_init();
 
-    /* Initialize display*/
-    // lv_display_t * dsp = lv_linux_fbdev_create();
-    // lv_linux_fbdev_set_file(dsp, "/dev/fb0");
-    lv_port_display_init();
+    sw_hal_init();
 
-    /* Initialize input*/
-    lv_port_indev_init();
-
-    /* Initialize the status ui*/
-    
     /*Create a Demo*/
     // lv_demo_widgets();
     // lv_demo_widgets_start_slideshow();

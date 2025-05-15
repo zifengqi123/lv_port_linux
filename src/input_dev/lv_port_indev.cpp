@@ -206,7 +206,7 @@ static void touchpad_init(void)
 {
     /*Your code comes here*/
     sw_devices->tp_open();
-    sw_devices->tp_set_parameter(0, 0, 319, 239, 20);
+    sw_devices->tp_set_parameter(0, 0, 319, 239, 15);
 }
 
 static uint32_t last_x = 0;

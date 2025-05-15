@@ -14,14 +14,14 @@ lv_font_t * load_freetype_font(uint32_t size)
 
     //TODO add more
     if (font_language == LANG_ZH) {
-        font = lv_freetype_font_create("/root/simsun.ttf",
+        font = lv_freetype_font_create("/user_data/sw_demo/simsun.ttf",
             LV_FREETYPE_FONT_RENDER_MODE_BITMAP, size, LV_FREETYPE_FONT_STYLE_NORMAL);
     }
     else if (font_language == LANG_AR) {  
-        font = lv_freetype_font_create("/root/arial.ttf",
+        font = lv_freetype_font_create("/user_data/sw_demo/arial.ttf",
             LV_FREETYPE_FONT_RENDER_MODE_BITMAP, size, LV_FREETYPE_FONT_STYLE_NORMAL);
     } else {
-        font = lv_freetype_font_create("/root/arial.ttf",
+        font = lv_freetype_font_create("/user_data/sw_demo/arial.ttf",
             LV_FREETYPE_FONT_RENDER_MODE_BITMAP, size, LV_FREETYPE_FONT_STYLE_NORMAL);
     }
 
@@ -38,11 +38,11 @@ void set_language(SW_Language lang) {
     if (lang >= 0 && lang < LANG_MAX) {
         current_language = lang;
 
-        if(sw_font[SW_FONT_8]) {
-            lv_freetype_font_delete(sw_font[SW_FONT_8]);
-        }
         if(sw_font[SW_FONT_12]) {
             lv_freetype_font_delete(sw_font[SW_FONT_12]);
+        }
+        if(sw_font[SW_FONT_16]) {
+            lv_freetype_font_delete(sw_font[SW_FONT_16]);
         }
         if(sw_font[SW_FONT_20]) {
             lv_freetype_font_delete(sw_font[SW_FONT_20]);
@@ -51,16 +51,16 @@ void set_language(SW_Language lang) {
             lv_freetype_font_delete(sw_font[SW_FONT_24]);
         }
         
-        sw_font[SW_FONT_8] = load_freetype_font(8);
         sw_font[SW_FONT_12] = load_freetype_font(12);
+        sw_font[SW_FONT_16] = load_freetype_font(16);
         sw_font[SW_FONT_20] = load_freetype_font(20);
         sw_font[SW_FONT_24] = load_freetype_font(24);
 
-        lv_style_init(&sw_style[SW_FONT_8]);
-        lv_style_set_text_font(&sw_style[SW_FONT_8], sw_font[SW_FONT_8]);
-
         lv_style_init(&sw_style[SW_FONT_12]);
         lv_style_set_text_font(&sw_style[SW_FONT_12], sw_font[SW_FONT_12]);
+
+        lv_style_init(&sw_style[SW_FONT_16]);
+        lv_style_set_text_font(&sw_style[SW_FONT_16], sw_font[SW_FONT_16]);
 
         lv_style_init(&sw_style[SW_FONT_20]);
         lv_style_set_text_font(&sw_style[SW_FONT_20], sw_font[SW_FONT_20]);

@@ -15,6 +15,22 @@ static void update_status_timer_cb(lv_timer_t *timer)
     pthread_mutex_unlock(&_show_mutex);
 }
 
+static void event_cbn_key(lv_event_t * e)
+{
+    uint32_t key = lv_indev_get_key(lv_indev_active());
+    LV_LOG_USER("key input: %x", key);
+
+    lv_obj_t * obj = lv_event_get_target_obj(e);
+
+    if(key == LV_KEY_ESC && _notice_ui.is_end) {
+        LV_LOG_USER("key LV_KEY_ESC. to del.");
+
+        lv_obj_remove_event(_notice_ui.obj, LV_EVENT_KEY);
+        sw_notice_ui_del();
+    }
+    
+}
+
 void sw_notice_ui_init(lv_obj_t *parent)
 {
     pthread_mutex_init(&_show_mutex, NULL);
@@ -29,6 +45,7 @@ void sw_notice_ui_init(lv_obj_t *parent)
     _notice_ui.hight = NOTICE_VIEW_HIGHT;
 
     _notice_ui.is_del = false;
+    _notice_ui.is_end = false;
 
     _notice_ui.obj = lv_obj_create(_notice_ui.parent);
     lv_obj_set_size(_notice_ui.obj, _notice_ui.width, _notice_ui.hight);
@@ -50,12 +67,18 @@ void sw_notice_ui_init(lv_obj_t *parent)
     lv_obj_align(_notice_ui.label, LV_ALIGN_CENTER, 0, -12);
 
     lv_obj_set_style_base_dir(_notice_ui.label, LV_BASE_DIR_AUTO, 0);
-    lv_obj_add_style(_notice_ui.label, get_sw_style_bysize(SW_FONT_12), 0);
+    lv_obj_add_style(_notice_ui.label, get_sw_style_bysize(SW_FONT_16), 0);
 
     pthread_mutex_unlock(&_show_mutex);
 
+    lv_group_add_obj(lv_group_get_default(), _notice_ui.obj);
+    lv_obj_add_event_cb(_notice_ui.obj, event_cbn_key, LV_EVENT_KEY, NULL);
+
+    lv_label_set_text(_notice_ui.label, notice_msg);
+
     _update_timer = lv_timer_create(update_status_timer_cb, 200, NULL);
     lv_timer_ready(_update_timer);
+
 }
 
 
@@ -74,6 +97,8 @@ void sw_notice_ui_del()
         }
     }
     _notice_ui.is_del = true;
+
+    sw_menu_ui_show();
 }
 
 void sw_notice_ui_show(const char* msg)
@@ -85,6 +110,11 @@ void sw_notice_ui_show(const char* msg)
 bool sw_notice_is_del() 
 {
     return _notice_ui.is_del;
+}
+
+void sw_notice_ui_end()
+{
+    _notice_ui.is_end = true;
 }
 
 }

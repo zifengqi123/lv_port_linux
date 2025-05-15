@@ -464,12 +464,10 @@ void signal_bar_init(lv_obj_t *parent, int x, int y, int width, int hight)
     lv_obj_set_size(_signal_bar.label_4, 2, 5 * signal_h);
 
     _signal_bar.lable_txt = lv_label_create(_signal_bar.parent);
-	// lv_label_set_text(_signal_bar.lable_txt, "4G");
-	// lv_label_set_long_mode(_signal_bar.lable_txt, LV_LABEL_LONG_WRAP);
-	lv_obj_set_pos(_signal_bar.lable_txt, _signal_bar.x, _signal_bar.y + 1);
-	// lv_obj_set_size(_signal_bar.lable_txt, 16, 8);
+	lv_obj_set_pos(_signal_bar.lable_txt, _signal_bar.x - 6, _signal_bar.y);
+	lv_obj_set_width(_signal_bar.lable_txt, 24);
 	lv_obj_set_scrollbar_mode(_signal_bar.lable_txt, LV_SCROLLBAR_MODE_OFF);
-    // lv_obj_set_style_text_font(_signal_bar.lable_txt, &lv_font_montserrat_12, 0);
+    lv_obj_add_style(_signal_bar.lable_txt, get_sw_style_bysize(SW_FONT_12), 0);
 
     int txp = _signal_bar.x;    // + 5;
     int ty = 4;
@@ -565,18 +563,16 @@ void signal_bar_setinfo(int level, const char* signal)
         break;
     }
 
-    lv_label_set_text(_signal_bar.lable_txt, signal);
-    lv_obj_add_style(_signal_bar.lable_txt, get_sw_style_bysize(SW_FONT_8), 0);
-    
+    // lv_label_set_text(_signal_bar.lable_txt, signal);    
 
-    // if(level == 0) {
-    //     lv_obj_set_style_text_color(_signal_bar.lable_txt, lv_color_hex(0xff0000), 0);
-    //     lv_label_set_text(_signal_bar.lable_txt, LV_SYMBOL_CLOSE);
-    // }
-    // else {
-    //     lv_obj_set_style_text_color(_signal_bar.lable_txt, lv_color_hex(0x000000), 0);
-    //     lv_label_set_text(_signal_bar.lable_txt, signal);
-    // }
+    if(level == 0) {
+        lv_obj_set_style_text_color(_signal_bar.lable_txt, lv_color_hex(0xff0000), 0);
+        lv_label_set_text(_signal_bar.lable_txt, "");
+    }
+    else {
+        lv_obj_set_style_text_color(_signal_bar.lable_txt, lv_color_hex(0x000000), 0);
+        lv_label_set_text(_signal_bar.lable_txt, signal);
+    }
 }
 
 void signal_bar_show()

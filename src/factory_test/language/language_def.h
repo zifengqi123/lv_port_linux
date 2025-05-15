@@ -11,8 +11,8 @@ typedef enum {
 } SW_Language;
 
 typedef enum {
-    SW_FONT_8,
     SW_FONT_12,
+    SW_FONT_16,
     SW_FONT_20,
     SW_FONT_24,
     SW_FONT_MAX

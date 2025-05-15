@@ -45,7 +45,6 @@ typedef struct ui_menu
     int max_page;
     int select_item;
 
-    lv_group_t * main_g;
     bool loop;
 
 }ui_menu_t;
